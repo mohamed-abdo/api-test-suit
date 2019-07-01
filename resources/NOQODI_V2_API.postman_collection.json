@@ -1,0 +1,331 @@
+{
+	"info": {
+		"_postman_id": "acbab5fa-15a4-4c4e-9302-a07133dfd859",
+		"name": "NOQODI_V2_API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "PRE_AUTH_REQ_V2",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "1d49b9b0-3b6d-450a-b637-1bcf4ba26bf9",
+						"exec": [
+							"pm.environment.set(\"merchantOrderId\",_.random(10000000,9999999999))"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "cc3db352-d51e-476d-8060-666e8e23b46b",
+						"exec": [
+							"let jsonData = JSON.parse(responseBody);\r",
+							"pm.environment.set(\"paymentRequestToken\", jsonData.paymentInfo.paymentRequestToken);\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Content-Type is present\", function () {\r",
+							"    pm.response.to.have.header(\"Content-Type\");\r",
+							"});\r",
+							"pm.test(\"Response time is less than 1000ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(1000);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "6a2e6e39-b8b1-45ed-9904-dced1f65b29b"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"serviceType\": \"PRE_AUTH\",\r\n  \"serviceMode\": \"NORMAL\",\r\n  \"merchantInfo\": {\r\n    \"merchantCode\": \"{{merchantCode}}\",\r\n    \"merchantLandingURL\": \"http://merchantapi.com/confirm?response=\",\r\n    \"merchantRequestId\": \"{{$guid}}\",\r\n    \"merchantOrderId\": \"{{merchantOrderId}}\"\r\n  },\r\n  \"paymentInfo\": {\r\n    \"amount\": {\r\n      \"value\": \"{{amount}}\",\r\n      \"currency\": \"{{currency}}\"\r\n    },\r\n    \"pricingInfo\": {\r\n      \"paymentTypes\": [\r\n        \"CCD\"\r\n      ]\r\n    }\r\n  }\r\n}"
+				},
+				"url": {
+					"raw": "{{api-url}}/merchant-api/v2/payments/preAuth",
+					"host": [
+						"{{api-url}}"
+					],
+					"path": [
+						"merchant-api",
+						"v2",
+						"payments",
+						"preAuth"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "PRE_AUTH_REQ_V2_Example",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "6a2e6e39-b8b1-45ed-9904-dced1f65b29b"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"serviceType\": \"PRE_AUTH\",\r\n  \"serviceMode\": \"Normal\",\r\n  \"customerInfo\": {\r\n    \"totalAmount\": {\r\n      \"value\": 100.00,\r\n      \"currency\": \"AED\"\r\n    }\r\n  },\r\n  \"merchantInfo\": {\r\n    \"merchantCode\": \"MR101854\",\r\n    \"merchantBatchId\": \"V2API11234567890\",\r\n    \"merchantRequestId\": \"V2API11234567891\",\r\n    \"landingURL\": \"http://merchantapi.com/confirm?response=\"\r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:9085/merchant-api/v2/payments/preAuth",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9085",
+							"path": [
+								"merchant-api",
+								"v2",
+								"payments",
+								"preAuth"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "X-Powered-By",
+							"value": "Servlet/3.1"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json;charset=UTF-8"
+						},
+						{
+							"key": "Content-Language",
+							"value": "en-US"
+						},
+						{
+							"key": "Set-Cookie",
+							"value": "JSESSIONID=0000C3T3hAwe_QnIRHcWTGy0YG_:45109471-0fbe-40bf-901e-c8fb93327191; Path=/; HttpOnly"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Date",
+							"value": "Sun, 05 May 2019 06:46:07 GMT"
+						},
+						{
+							"key": "Expires",
+							"value": "Thu, 01 Dec 1994 16:00:00 GMT"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache=\"set-cookie, set-cookie2\""
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"serviceType\": \"PRE_AUTH\",\n    \"serviceMode\": \"Normal\",\n    \"customerInfo\": {\n        \"totalAmount\": {\n            \"value\": 100,\n            \"currency\": \"AED\"\n        }\n    },\n    \"merchantInfo\": {\n        \"merchantCode\": \"MR101854\",\n        \"merchantBatchId\": \"V2API11234567890\",\n        \"landingURL\": \"http://merchantapi.com/confirm?response=\",\n        \"merchantRequestId\": \"V2API11234567891\"\n    },\n    \"transactionsInfo\": {\n        \"paymentRequestToken\": \"e5d32bcb-e82d-4ee8-b222-4f80aece1e7fMR101854\",\n        \"transactionDate\": \"05-05-2019 10:46:07\",\n        \"statusInfo\": {\n            \"status\": \"SUCCESS\"\n        }\n    }\n}"
+				}
+			]
+		},
+		{
+			"name": "AUTH_REQ_V2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "dc794813-4864-4528-aaa0-dd757f07ca61",
+						"exec": [
+							"let jsonData = JSON.parse(responseBody);\r",
+							"\r",
+							"pm.environment.set(\"noqodiOrderId\", jsonData.paymentInfo.noqodiOrderId);\r",
+							"\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Content-Type is present\", function () {\r",
+							"    pm.response.to.have.header(\"Content-Type\");\r",
+							"});\r",
+							"pm.test(\"Response time is less than 1000ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(1000);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "6a2e6e39-b8b1-45ed-9904-dced1f65b29b"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"serviceType\": \"AUTH\",\r\n  \"serviceMode\": \"NORMAL\",\r\n  \"customerInfo\": {\r\n    \"paymentMethod\": {\r\n      \"type\": \"ECA\"\r\n    },\r\n    \"debitAccountNumber\": \"{{debitAccountNumber}}\"\r\n  },\r\n  \"merchantInfo\": {\r\n    \"merchantCode\": \"{{merchantCode}}\",\r\n    \"merchantLandingURL\": \"http://merchantapi.com/confirm?response=\",\r\n    \"merchantRequestId\": \"{{$guid}}\",\r\n    \"merchantOrderId\": \"{{merchantOrderId}}\"\r\n  },\r\n  \"paymentInfo\": {\r\n    \"amount\": {\r\n      \"value\": \"{{amount}}\",\r\n      \"currency\": \"{{currency}}\"\r\n    },\r\n    \"paymentRequestToken\": \"{{paymentRequestToken}}\"\r\n  }\r\n}"
+				},
+				"url": {
+					"raw": "{{api-url}}/merchant-api/v2/payments/auth",
+					"host": [
+						"{{api-url}}"
+					],
+					"path": [
+						"merchant-api",
+						"v2",
+						"payments",
+						"auth"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CAPTURE_REQ_V2",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "6ad84c83-7a45-46ff-9879-b7e709387ea0",
+						"exec": [
+							"pm.environment.set(\"merchantReferenceId\",_.random(10000000,9999999999))",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "6a2e6e39-b8b1-45ed-9904-dced1f65b29b"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"serviceType\": \"CAPTURE\",\n    \"merchantInfo\": {\n        \"merchantCode\": \"{{merchantCode}}\",\n        \"merchantRequestId\": \"{{$guid}}\",\n        \"merchantOrderId\": \"{{merchantOrderId}}\"\n    },\n    \"paymentInfo\": {\n        \"amount\": {\n            \"value\": \"{{amount}}\",\n            \"currency\": \"{{currency}}\"\n        },\n        \"noqodiOrderId\": \"{{noqodiOrderId}}\",\n        \"transactions\": [\n            {\n                \"merchantReferenceId\": \"{{merchantReferenceId}}\",\n                \"merchantCode\": \"{{merchantCode}}\",\n                \"transactionAmount\": {\n                    \"value\": \"{{amount}}\",\n                    \"currency\": \"{{currency}}\"\n                },\n                \"beneficiaries\": [\n                    {\n                        \"beneficiaryAcctNumber\": \"9910185400503\",\n                        \"beneficiaryName\": \"Violet\",\n                        \"beneficiaryAmount\": {\n                            \"value\": \"{{bene1_amount}}\",\n                            \"currency\": \"AED\"\n                        }\n                    },\n                    {\n                        \"beneficiaryAcctNumber\": \"9910185400504\",\n                        \"beneficiaryName\": \"DubaiStore Commission VAT\",\n                        \"beneficiaryAmount\": {\n                            \"value\": \"{{bene2_amount}}\",\n                            \"currency\": \"AED\"\n                        }\n                    }\n                ]\n            }\n        ]\n    }\n}"
+				},
+				"url": {
+					"raw": "{{api-url}}/merchant-api/v2/payments/capture",
+					"host": [
+						"{{api-url}}"
+					],
+					"path": [
+						"merchant-api",
+						"v2",
+						"payments",
+						"capture"
+					]
+				},
+				"description": "This is the Capture rest service which gets invoked by Merchant.\r\n\r\n\r\n\r\nThis service is used to capture the authorized amount i.e. captured amount will release the hold and debited from customer balance. \r\n\r\nMerchant Beneficiaries will be credited as per the given split in the request.\r\n\r\nAccounting will also be booked for the capture."
+			},
+			"response": [
+				{
+					"name": "CAPTURE_REQ_RSP_V2_WALLET",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "6a2e6e39-b8b1-45ed-9904-dced1f65b29b"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"serviceType\": \"CAPTURE\",\r\n  \"serviceMode\": \"NORMAL\",\r\n  \"customerInfo\": {\r\n    \"totalAmount\": {\r\n      \"value\": 100.0,\r\n      \"currency\": \"AED\"\r\n    }\r\n  },\r\n  \"merchantInfo\": {\r\n    \"merchantCode\": \"MR101854\",\r\n    \"merchantLandingURL\": \"http://merchantapi.com/confirm?response=\",\r\n    \"merchantRequestId\": \"90f01499-81a9-4591-a44a-871dc1e2cdb1\"\r\n  },\r\n  \"transactionsInfo\": {\r\n    \"noqodiOrderId\": \"0a26a83f-6acc-4e1f-9754-c6f97571d683\",\r\n    \"transactions\": [\r\n      {\r\n        \"merchantReferenceId\": \"33332266775556338\",\r\n        \"merchantCode\": \"MR101854\",\r\n        \"transactionAmount\": {\r\n          \"value\": 100.0,\r\n          \"currency\": \"AED\"\r\n        },\r\n        \"beneficiaries\": [\r\n          {\r\n            \"beneficiaryAcctNumber\": \"9910185400503\",\r\n            \"beneficiaryName\": \"DubaiStore Commission\",\r\n            \"beneficiaryAmount\": {\r\n              \"value\": 60,\r\n              \"currency\": \"AED\"\r\n            }\r\n          },\r\n          {\r\n            \"beneficiaryAcctNumber\": \"9910185400504\",\r\n            \"beneficiaryName\": \"DubaiStore Commission VAT\",\r\n            \"beneficiaryAmount\": {\r\n              \"value\": 40,\r\n              \"currency\": \"AED\"\r\n            }\r\n          }\r\n        ]\r\n      }\r\n    ]\r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:9085/merchant-api/v2/payments/capture",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9085",
+							"path": [
+								"merchant-api",
+								"v2",
+								"payments",
+								"capture"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "X-Powered-By",
+							"value": "Servlet/3.1"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json;charset=UTF-8"
+						},
+						{
+							"key": "Content-Language",
+							"value": "en-US"
+						},
+						{
+							"key": "Set-Cookie",
+							"value": "JSESSIONID=0000iboBhWyvkqFU5NGttKd82p2:0de6d5ad-3e40-4080-88b7-ddc8fb912fdd; Path=/; HttpOnly"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Date",
+							"value": "Tue, 18 Jun 2019 05:24:26 GMT"
+						},
+						{
+							"key": "Expires",
+							"value": "Thu, 01 Dec 1994 16:00:00 GMT"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache=\"set-cookie, set-cookie2\""
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"id\": \"637e8ddb-efd6-4a21-9b49-97733abf0ad2\",\n    \"serviceType\": \"CAPTURE\",\n    \"serviceMode\": \"NORMAL\",\n    \"customerInfo\": {\n        \"paymentMethod\": \"ECA\",\n        \"totalAmount\": {\n            \"value\": 100,\n            \"currency\": \"AED\"\n        }\n    },\n    \"merchantInfo\": {\n        \"merchantCode\": \"MR101854\",\n        \"merchantLandingURL\": \"http://merchantapi.com/confirm?response=\",\n        \"merchantRequestId\": \"90f01499-81a9-4591-a44a-871dc1e2cdb1\"\n    },\n    \"transactionsInfo\": {\n        \"noqodiOrderId\": \"0a26a83f-6acc-4e1f-9754-c6f97571d683\",\n        \"customerReferenceId\": \"D1PCI1560835464766\",\n        \"transactionDate\": \"18-06-2019 09:24:24\",\n        \"transactions\": [\n            {\n                \"merchantReferenceId\": \"33332266775556338\",\n                \"noqodiReferenceId\": \"D1PKS1560835465115\",\n                \"merchantCode\": \"MR101854\",\n                \"transactionAmount\": {\n                    \"value\": 100,\n                    \"currency\": \"AED\"\n                },\n                \"beneficiaries\": [\n                    {\n                        \"beneficiaryAcctNumber\": \"9910185400503\",\n                        \"beneficiaryName\": \"DubaiStore Commission\",\n                        \"beneficiaryAmount\": {\n                            \"value\": 60,\n                            \"currency\": \"AED\"\n                        }\n                    },\n                    {\n                        \"beneficiaryAcctNumber\": \"9910185400504\",\n                        \"beneficiaryName\": \"DubaiStore Commission VAT\",\n                        \"beneficiaryAmount\": {\n                            \"value\": 40,\n                            \"currency\": \"AED\"\n                        }\n                    }\n                ]\n            }\n        ]\n    },\n    \"statusInfo\": {\n        \"status\": \"SUCCESS\"\n    }\n}"
+				}
+			]
+		}
+	]
+}
