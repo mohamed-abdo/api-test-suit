@@ -1,5 +1,8 @@
 from flask import Flask, request, url_for, Response, jsonify, json
+import logging
+
 from datetime import datetime
+from api_v2 import asserts_dic
 
 app = Flask(__name__)
 
@@ -18,10 +21,19 @@ def trace(testCase):
     response.headers = {'content-type': 'application/json',
                         'Accept': 'application/json'}
     response.headers = {**response.headers, **request.headers}
-    if request.is_json:
-        payload = request.get_json()
-        response.data = json.dumps(payload)
-    return response or 'n/a', 200
+    try:
+        if request.is_json:
+            payload = request.get_json()
+            '''
+            # pass payload to assertion function
+            assertions = asserts_dic.build_dict()[testCase]
+            for k in assertions:
+                k(payload)
+            '''
+            response.data = json.dumps(payload)
+    except Exception as ex:
+        logging.error('error of tracer: {}'.format(ex))
+    return response, 200
 
 
 with app.test_request_context():
