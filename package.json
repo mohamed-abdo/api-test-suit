@@ -24,6 +24,8 @@
   },
   "homepage": "https://github.com/mohamed-abdo/api-test-suit#readme",
   "dependencies": {
+    "fs": "0.0.1-security",
+    "fs-extra": "^8.1.0",
     "lodash": "^4.17.11",
     "newman": "^4.5.1",
     "request": "^2.88.0"
