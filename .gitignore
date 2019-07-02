@@ -1,0 +1,7 @@
+node_modules
+flask-srv
+resources\**
+archive\**
+package-lock*
+.vscode
+**\noqodi*
