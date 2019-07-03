@@ -45,7 +45,7 @@ def initiateUnitTest(executionId):
         pytest.main(
             ['-v', pytestDir, '--html=.\\reports\\{}-report.html'.format(executionId)])
     except Exception as ex:
-        logging.error('error of calling summary: {}'.format(ex))
+        logging.error('error while calling summary: {}'.format(ex))
     return response, 200
 
 

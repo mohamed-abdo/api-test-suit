@@ -74,7 +74,7 @@ const postRequest = function (executionId, traceService, endpoint, requestBody) 
             console.error(`error on while sending tarce to ${traceServiceEndpoint}, error: ${err}`)
             return
         }
-        console.log(`statusCode: ${res.statusCode}, of service: ${traceServiceEndpoint}`)
+        console.log(`successfully get response of service: ${traceServiceEndpoint}`)
     });
 };
 
