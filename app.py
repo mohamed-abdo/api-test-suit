@@ -20,8 +20,6 @@ def tracer(testCase):
     formatted_now = now.strftime("%A, %d %B, %Y at %X")
     print('tracing of testCase: {}, at:{}'.format(testCase, formatted_now))
     response = Response()
-    response.headers = {'content-type': 'application/json',
-                        'Accept': 'application/json'}
     response.headers = {**request.headers}
     try:
         if request.is_json:
@@ -36,10 +34,8 @@ def tracer(testCase):
 def initiateUnitTest(executionId):
     now = datetime.now()
     formatted_now = now.strftime("%A, %d %B, %Y at %X")
-    print('tracing of testCase: {}, at:{}'.format(executionId, formatted_now))
+    print('tracing of summary: {}, at:{}'.format(executionId, formatted_now))
     response = Response()
-    response.headers = {'content-type': 'application/json',
-                        'Accept': 'application/json'}
     response.headers = {**request.headers}
     try:
         if request.is_json:
@@ -47,9 +43,9 @@ def initiateUnitTest(executionId):
             response.data = json.dumps(payload)
         # run pytest from pytest defined directory
         pytest.main(
-            ['-x', pytestDir, '--html=.\\reports\\{}-report.html'.format(executionId)])
+            ['-v', pytestDir, '--html=.\\reports\\{}-report.html'.format(executionId)])
     except Exception as ex:
-        logging.error('error of tracer: {}'.format(ex))
+        logging.error('error of calling summary: {}'.format(ex))
     return response, 200
 
 

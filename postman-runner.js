@@ -3,6 +3,7 @@ const _ = require('lodash');
 const request = require('request');
 const fs = require('fs');
 const fs_extra = require('fs-extra');
+const prettyJson = require('prettyjson');
 
 const params = {
     traceService: process.argv[2],
@@ -19,11 +20,6 @@ const postmanRunnner = function (params) {
                 collection: require(params.collection),
                 environment: require(params.environment),
                 reporters: 'cli'
-            }, function (err, summary) {
-                if (err) {
-                    throw err;
-                }
-                console.log('collection run complete! ', _.get(summary, 'run.timings'));
             })
             .on('start', function (err, args) {
                 archivePrevExecutionSync(params.resourceDir, params.archiveDir, params.executionId);
@@ -36,18 +32,29 @@ const postmanRunnner = function (params) {
                     status: args.response.code,
                     response_time: args.response.responseTime,
                     headers: _.fromPairs(args.request.headers.members.map(v => [v.key, v.value])),
-                    request: args.request.body.raw,
-                    response: _.get(args, 'response.body.raw'),
+                    request: JSON.parse(args.request.body.raw),
+                    response: !!args.response.body ? JSON.parse(args.response.body.raw) : JSON.parse(args.response.stream),
                 }
                 writeRequest(params.resourceDir, requestBody.testCase, JSON.stringify(requestBody));
-                postRequest(params.resourceDir, params.traceService, 'tracer', requestBody);
+                postRequest(params.executionId, params.traceService, 'tracer', requestBody);
             })
             .on('done', function (err, summary) {
                 if (err || summary.error) {
                     console.error('collection run encountered an error.');
                 } else {
-                    postRequest(params.traceService, 'summary', summary);
-                    console.log('collection run completed.');
+                    let requestBody = {};
+                    if (!!(summary.run)) {
+                        let status_dic = {};
+                        summary.run.executions
+                            .map(r => [r.request.url.path.join('/'), r.response.code])
+                            .map(i => status_dic[i[0]] = i[1]);
+                        requestBody = {
+                            requests: status_dic,
+                            timings: summary.run.timings
+                        }
+                    }
+                    postRequest(summary.collection.name, params.traceService, 'summary', requestBody);
+                    console.log(`collection run completed, execution summary: \n ${prettyJson.render(requestBody)}`);
                 }
             });
     } catch (err) {
@@ -55,19 +62,19 @@ const postmanRunnner = function (params) {
     }
 };
 
-const postRequest = function (traceService, endpoint, requestBody) {
+const postRequest = function (executionId, traceService, endpoint, requestBody) {
     const traceServiceEndpoint = `${traceService}/${endpoint}/${executionId}`;
     console.log(`on request:${requestBody.testCase}, calling: ${traceServiceEndpoint} service`);
     request.post(traceServiceEndpoint, {
         json: {
             data: requestBody
         }
-    }, (error, res) => {
-        if (error) {
-            console.error(`error on while sending tarce to ${traceService}, error: ${error}`)
+    }, (err, res) => {
+        if (err) {
+            console.error(`error on while sending tarce to ${traceServiceEndpoint}, error: ${err}`)
             return
         }
-        console.log(`statusCode: ${res.statusCode}, of service: ${traceService}`)
+        console.log(`statusCode: ${res.statusCode}, of service: ${traceServiceEndpoint}`)
     });
 };
 
@@ -95,8 +102,6 @@ const archivePrevExecutionSync = function (resourceDir, archiveDir, executionId)
             console.error(err);
         else
             files.forEach(file => {
-
-                console.info(`moving directory: ${file.name} to ${archiveDir}\\${executionId}\\${file.name}`);
                 fs_extra.moveSync(`${resourceDir}\\${file.name}`, `${archiveDir}\\${executionId}\\${file.name}`);
             });
     });

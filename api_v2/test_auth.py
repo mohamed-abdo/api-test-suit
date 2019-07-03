@@ -4,7 +4,7 @@ import logging
 from utils.parse_json import ParseJson
 
 
-class TestPreAuth:
+class TestAuth:
 
     @pytest.fixture
     def logging_fixture(self, caplog):
@@ -12,7 +12,7 @@ class TestPreAuth:
 
     @pytest.fixture
     def json_file_path(self):
-        self.json_file_path = '.\\resources\\api-response\\PRE_AUTH_REQ_V2.json'
+        self.json_file_path = '.\\resources\\api-response\\AUTH_REQ_V2.json'
 
     @pytest.fixture
     def json_data(self, json_file_path):
