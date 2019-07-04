@@ -5,14 +5,6 @@ const fs = require('fs');
 const fs_extra = require('fs-extra');
 const prettyJson = require('prettyjson');
 
-const params = {
-    traceService: process.argv[2],
-    collection: process.argv[3],
-    environment: process.argv[4],
-    resourceDir: '.\\resources\\api-response',
-    archiveDir: '.\\archive',
-    executionId: +new Date()
-}
 
 const postmanRunnner = function (params) {
     try {
@@ -22,8 +14,7 @@ const postmanRunnner = function (params) {
                 reporters: 'cli'
             })
             .on('start', function (err, args) {
-                archivePrevExecutionSync(params.resourceDir, params.archiveDir, params.executionId);
-                createExecutionDir(params.resourceDir);
+                createExecutionDir(params.resourceDir, params.executionId);
                 console.log('on start ...');
             })
             .on('request', function (err, args) {
@@ -35,8 +26,8 @@ const postmanRunnner = function (params) {
                     request: JSON.parse(args.request.body.raw),
                     response: !!args.response.body ? JSON.parse(args.response.body.raw) : JSON.parse(args.response.stream),
                 }
-                writeRequest(params.resourceDir, requestBody.testCase, JSON.stringify(requestBody));
-                postRequest(params.executionId, params.traceService, 'tracer', requestBody);
+                writeRequest(params.resourceDir, params.executionId, requestBody.testCase, JSON.stringify(requestBody));
+                postRequest(params.traceService, 'tracer', params.executionId, requestBody);
             })
             .on('done', function (err, summary) {
                 if (err || summary.error) {
@@ -53,7 +44,9 @@ const postmanRunnner = function (params) {
                             timings: summary.run.timings
                         }
                     }
-                    postRequest(summary.collection.name, params.traceService, 'summary', requestBody);
+                    postRequest(params.traceService, 'summary', params.executionId, requestBody).then((res) => {
+                        archivePrevExecutionSync(params.resourceDir, params.executionId, params.archiveDir);
+                    });
                     console.log(`collection run completed, execution summary: \n ${prettyJson.render(requestBody)}`);
                 }
             });
@@ -62,19 +55,22 @@ const postmanRunnner = function (params) {
     }
 };
 
-const postRequest = function (executionId, traceService, endpoint, requestBody) {
+const postRequest = function (traceService, endpoint, executionId, requestBody) {
     const traceServiceEndpoint = `${traceService}/${endpoint}/${executionId}`;
     console.log(`on request:${requestBody.testCase}, calling: ${traceServiceEndpoint} service`);
-    request.post(traceServiceEndpoint, {
-        json: {
-            data: requestBody
-        }
-    }, (err, res) => {
-        if (err) {
-            console.error(`error on while sending tarce to ${traceServiceEndpoint}, error: ${err}`)
-            return
-        }
-        console.log(`successfully get response of service: ${traceServiceEndpoint}`)
+    return new Promise((resolve, reject) => {
+        request.post(traceServiceEndpoint, {
+            json: {
+                data: requestBody
+            }
+        }, (err, res) => {
+            if (err) {
+                console.error(`error on while sending tarce to ${traceServiceEndpoint}, error: ${err}`)
+                return reject(err);
+            }
+            console.log(`successfully get response of service: ${traceServiceEndpoint}`)
+            resolve(res);
+        });
     });
 };
 
@@ -84,28 +80,52 @@ const defaultCallbacl = function (err) {
 };
 
 
-const writeRequest = function (resourceDir, testCase, json) {
-    fs_extra.writeFile(`${resourceDir}\\${testCase}.json`, json, defaultCallbacl);
+const writeRequest = function (resourceDir, executionId, testCase, json) {
+    fs_extra.writeFile(`${resourceDir}\\${executionId}\\${testCase}.json`, json, defaultCallbacl);
 };
 
-const createExecutionDir = function (resourceDir) {
-    if (!fs.existsSync(resourceDir))
-        fs.mkdirSync(resourceDir, {
-            recursive: true
-        }, defaultCallbacl);
+const createExecutionDir = function (resourceDir, executionId) {
+    fs.mkdirSync(`${resourceDir}\\${executionId}`, {
+        recursive: true
+    }, defaultCallbacl);
 }
-const archivePrevExecutionSync = function (resourceDir, archiveDir, executionId) {
-    fs.readdir(resourceDir, {
-        withFileTypes: true
-    }, (err, files) => {
-        if (err)
-            console.error(err);
-        else
-            files.forEach(file => {
-                fs_extra.moveSync(`${resourceDir}\\${file.name}`, `${archiveDir}\\${executionId}\\${file.name}`);
-            });
-    });
+const archivePrevExecutionSync = function (resourceDir, executionId, archiveDir) {
+    console.log(`archiving: ${resourceDir}\\${executionId}`);
+    fs_extra.moveSync(`${resourceDir}\\${executionId}`, `${archiveDir}\\${executionId}`);
 };
 
 // executing postman runner
-postmanRunnner(params);
+const params = {
+    traceService: process.argv[2],
+    collection: process.argv[3],
+    environment: process.argv[4],
+    resourceDir: '.\\resources',
+    archiveDir: '.\\archive',
+    executionId: +new Date()
+}
+
+fs.lstat(params.collection, (err, stats) => {
+    if (err) {
+        console.error(err);
+        return;
+    }
+    if (!stats.isDirectory()) {
+        postmanRunnner(params);
+    } else {
+        fs.readdir(params.collection, {
+            withFileTypes: true
+        }, (err, pathes) => {
+            if (err) {
+                console.error(err);
+                return;
+            }
+            pathes
+                .filter(p => !p.isDirectory())
+                .forEach(f => {
+                    params.collection = f.name;
+                    params.executionId = +new Date();
+                    postmanRunnner(params);
+                });
+        });
+    }
+});

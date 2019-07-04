@@ -42,8 +42,10 @@ def initiateUnitTest(executionId):
             payload = request.get_json()
             response.data = json.dumps(payload)
         # run pytest from pytest defined directory
-        pytest.main(
-            ['-v', pytestDir, '--html=.\\reports\\{}-report.html'.format(executionId)])
+        pytest_args = [
+            '-v', pytestDir, '--folder={}'.format(executionId), '--html={}'.format('.\\reports\\api-v2-report.html'), '--junitxml={}'.format('.\\reports\\api-v2-junit-report.xml')]
+        print('calling pytest: {}'.format(pytest_args))
+        pytest.main(pytest_args)
     except Exception as ex:
         logging.error('error while calling summary: {}'.format(ex))
     return response, 200

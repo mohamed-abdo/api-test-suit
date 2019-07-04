@@ -12,8 +12,8 @@ class TestAuth:
         caplog.set_level(logging.WARNING)
 
     @pytest.fixture
-    def json_file_path(self):
-        return '.\\resources\\api-response\\AUTH_DEFAULT.json'
+    def json_file_path(self, folder):
+        return '.\\resources\\{}\\AUTH_DEFAULT.json'.format(folder)
 
     @pytest.fixture(autouse=True)
     def json_data(self, json_file_path):

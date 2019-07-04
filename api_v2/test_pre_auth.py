@@ -12,9 +12,9 @@ class TestPreAuth:
         caplog.set_level(logging.WARNING)
 
     @pytest.fixture
-    def json_file_path(self):
-        return '.\\resources\\api-response\\PRE_AUTH_DEFAULT.json'
-
+    def json_file_path(self, folder):
+        return '.\\resources\\{}\\PRE_AUTH_DEFAULT.json'.format(folder)
+            
     @pytest.fixture(autouse=True)
     def json_data(self, json_file_path):
         if not os.path.exists(json_file_path):

@@ -11,9 +11,18 @@ class TestCapture:
     def logging_fixture(self, caplog):
         caplog.set_level(logging.WARNING)
 
+    @pytest.fixture(autouse=True)
+    def json_file_path(self, folder):
+        return '.\\resources\\{}\\CAPTURE_DEFAULT.json'.format(folder)
+
     @pytest.fixture
-    def json_file_path(self):
-        return '.\\resources\\api-response\\CAPTURE_DEFAULT.json'
+    def json_data_from_invalid_bene(self, folder):
+        self.file_path = '.\\resources\\{}\\CAPTURE_INVALID_BENE.json'.format(
+            folder)
+        if not os.path.exists(self.file_path):
+            pytest.skip()
+            return None
+        return TestUtils.get_data(json_file_path)
 
     @pytest.fixture(autouse=True)
     def json_data(self, json_file_path):
@@ -35,13 +44,29 @@ class TestCapture:
         assert (actual.currency ==
                 expected.currency), 'capture currency is mismatched'
 
-    @pytest.mark.parametrize('param_data', [TestUtils.get_data('.\\resources\\api-response\\CAPTURE_INVLAID_BENE_AMOUNT.json')])
-    def test_ok_status_code(self, param_data):
-        if param_data is None:
+    '''
+    Testing invalid collections
+    '''
+
+    def test_captured_invalid_bene_code(self, json_data_from_invalid_bene):
+        json_data = json_data_from_invalid_bene
+        if json_data is None:
             pytest.skip()
             return None
-        assert (param_data.status == 400), 'expected status code 400'
-        assert (param_data.response.statusInfo.status ==
+        json_data = json_data_from_invalid_bene
+        assert (json_data.status == 400), 'expected status code 400'
+        assert (json_data.response.statusInfo.status ==
                 'FAILURE'), 'expected FAILURE in status info'
-        assert (param_data.response.statusInfo.errorCode.code ==
+        assert (json_data.response.statusInfo.errorCode.code ==
+                'BENE_ACCOUNT_NUMBER_INCORRECT'), 'expected FAILURE code in status info'
+
+    def test_bad_request_status_code(self, json_data_from_invalid_bene):
+        response_data = json_data_from_invalid_bene
+        if response_data is None:
+            pytest.skip()
+            return None
+        assert (response_data.status == 400), 'expected status code 400'
+        assert (response_data.response.statusInfo.status ==
+                'FAILURE'), 'expected FAILURE in status info'
+        assert (response_data.response.statusInfo.errorCode.code ==
                 'AMOUNT_EXCEEDED'), 'expected FAILURE code in status info'
