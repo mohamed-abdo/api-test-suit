@@ -141,8 +141,8 @@ const postman_runner = async function () {
                     localParam = _.cloneDeep(params);
                     localParam.collection = `${params.collection}//${fileName}`;
                     localParam.executionId = +new Date();
-                    collectionRunnner(localParam);
-                }
+                    await collectionRunnner(localParam);
+                };
             });
         }
     });
