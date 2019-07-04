@@ -4,7 +4,6 @@ import logging
 import os
 from utils.parse_json import TestUtils
 
-
 class TestPreAuth:
 
     @pytest.fixture

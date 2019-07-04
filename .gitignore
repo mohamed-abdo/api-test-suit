@@ -6,4 +6,5 @@ package-lock*
 .vscode
 reports
 __pycache__
+.pytest*
 **\noqodi*

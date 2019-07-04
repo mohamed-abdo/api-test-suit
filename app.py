@@ -6,7 +6,7 @@ from datetime import datetime
 
 app = Flask(__name__)
 
-pytestDir = '.\\api_v2'
+pytestDir = '.\\tests'
 
 
 @app.route("/", methods=['GET'])
@@ -43,7 +43,7 @@ def initiateUnitTest(executionId):
             response.data = json.dumps(payload)
         # run pytest from pytest defined directory
         pytest_args = [
-            '-v', pytestDir, '--folder={}'.format(executionId), '--html={}'.format('.\\reports\\api-v2-report.html'), '--junitxml={}'.format('.\\reports\\api-v2-junit-report.xml')]
+            '-v', '--rootdir={}'.format(pytestDir), '--folder={}'.format(executionId), '--html=.\\reports\\{}-report.html'.format(executionId), '--junitxml=.\\reports\\{}-junit-report.xml'.format(executionId)]
         print('calling pytest: {}'.format(pytest_args))
         pytest.main(pytest_args)
     except Exception as ex:

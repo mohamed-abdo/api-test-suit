@@ -17,9 +17,14 @@ class TestCapture:
 
     @pytest.fixture
     def json_data_from_invalid_bene(self, folder):
-        self.file_path = '.\\resources\\{}\\CAPTURE_INVALID_BENE.json'.format(
-            folder)
-        if not os.path.exists(self.file_path):
+        if not os.path.exists('.\\resources\\{}\\CAPTURE_INVALID_BENE.json'.format(folder)):
+            pytest.skip()
+            return None
+        return TestUtils.get_data(json_file_path)
+
+    @pytest.fixture
+    def json_data_invalid_amount(self, folder):
+        if not os.path.exists('.\\resources\\{}\\CAPTURE_EXCEED_AMOUNT.json'.format(folder)):
             pytest.skip()
             return None
         return TestUtils.get_data(json_file_path)
@@ -60,8 +65,8 @@ class TestCapture:
         assert (json_data.response.statusInfo.errorCode.code ==
                 'BENE_ACCOUNT_NUMBER_INCORRECT'), 'expected FAILURE code in status info'
 
-    def test_bad_request_status_code(self, json_data_from_invalid_bene):
-        response_data = json_data_from_invalid_bene
+    def test_bad_request_status_code(self, json_data_invalid_amount):
+        response_data = json_data_invalid_amount
         if response_data is None:
             pytest.skip()
             return None
