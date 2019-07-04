@@ -1,4 +1,7 @@
 import json
+import os
+import pytest
+import logging
 
 
 class ParseJson:
@@ -17,11 +20,15 @@ class ParseJson:
                                       (k, v) in self.__dict__.items()))
 
 
-class JsonUtils:
-    def __init__(self, file_path):
-        self.file_path = file_path
+class TestUtils:
 
-    def get_data(self):
-        with open(self.file_path, 'r') as f:
-            data_dic = json.loads(f.read())
-        return ParseJson(data_dic)
+    def get_data(file_path):
+        try:
+            if not os.path.exists(file_path):
+                return None
+            with open(file_path, 'r') as f:
+                data_dic = json.loads(f.read())
+            return ParseJson(data_dic)
+        except Exception as e:
+            logging.error(
+                'error while loading json data file {}'.format(file_path))
