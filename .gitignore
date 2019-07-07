@@ -6,6 +6,7 @@ package-lock*
 .vscode
 .idea
 reports
+**\jira.cfg
 __pycache__
 .pytest*
 **\noqodi*

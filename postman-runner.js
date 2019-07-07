@@ -99,13 +99,23 @@ const createExecutionDir = function (resourceDir, executionId) {
     fs.mkdirSync(`${resourceDir}\\${executionId}`, {
         recursive: true
     }, defaultCallbacl);
-}
+};
+
 const archivePrevExecutionSync = function (resourceDir, executionId, archiveDir) {
     console.log(`archiving: ${resourceDir}\\${executionId}`);
     fs_extra.moveSync(`${resourceDir}\\${executionId}`, `${archiveDir}\\${executionId}`);
 };
 
-
+const archivePrevReportsSync = function (archiveDir) {
+    console.log(`archiving reports: .\\reports`);
+    fs.readdirSync('.\\reports', {
+            withFileTypes: true
+        })
+        .filter(p => !p.isDirectory())
+        .forEach(f =>
+            fs_extra.moveSync(`.\\reports\\${f.name}`, `${archiveDir}\\reports\\${f.name}`)
+        );
+};
 
 const postman_runner = async function () {
 
@@ -118,7 +128,9 @@ const postman_runner = async function () {
         archiveDir: '.\\archive',
         executionId: +new Date()
     };
-
+    //archiving reports
+    archivePrevReportsSync(params.archiveDir);
+    //
     fs.lstat(params.collection, (err, stats) => {
         if (err) {
             console.error(err);

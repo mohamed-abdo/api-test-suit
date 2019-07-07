@@ -36,6 +36,7 @@ class TestCapture:
             return None
         return TestUtils.get_data(json_file_path)
 
+    #@pytest.mark.jira("TT-679")
     def test_ok_status_code(self, json_data):
         assert (json_data.status == 200), 'expected status code 200'
         assert (json_data.response.statusInfo.status ==
