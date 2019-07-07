@@ -4,6 +4,7 @@ resources
 archive
 package-lock*
 .vscode
+.idea
 reports
 __pycache__
 .pytest*
